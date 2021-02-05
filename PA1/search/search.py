@@ -117,7 +117,6 @@ def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     visited = []
     pQueue = util.PriorityQueue()
-    print(problem.getStartState())
     pQueue.push((problem.getStartState(), [], 0), 0)
 
     while not pQueue.isEmpty():
@@ -129,8 +128,8 @@ def uniformCostSearch(problem):
         if state not in visited:
             visited.append(state)
             for successor in problem.getSuccessors(state):
-                newPriority = cost + successor[2]
-                pQueue.push((successor[0], path + [successor[1]], newPriority), newPriority)
+                newCost = cost + successor[2]
+                pQueue.push((successor[0], path + [successor[1]], newCost), newCost)
     return None
 
 def nullHeuristic(state, problem=None):
@@ -142,8 +141,23 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    visited = []
+    pQueue = util.PriorityQueue()
+    pQueue.push((problem.getStartState(), [], 0), heuristic(problem.getStartState(), problem))
+
+    while not pQueue.isEmpty():
+
+        state, path, cost = pQueue.pop()
+
+        if problem.isGoalState(state):
+            return path
+        if state not in visited:
+            visited.append(state)
+            for successor in problem.getSuccessors(state):
+                newCost = cost + successor[2] 
+                newPriority = newCost + heuristic(successor[0], problem)
+                pQueue.push((successor[0], path + [successor[1]], newCost), newPriority)
+    return None
 
 
 # Abbreviations
