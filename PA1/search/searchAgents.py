@@ -287,22 +287,21 @@ class CornersProblem(search.SearchProblem):
         self._expanded = 0 # DO NOT CHANGE; Number of search nodes expanded
         # Please add any code here which you would like to use
         # in initializing the problem
-        "*** YOUR CODE HERE ***"
 
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # Initialize all corners as false
+        return self.startingPosition, [False, False, False, False]
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        position, corners = state
+        return corners[0] and corners[1] and corners[2] and corners[3]
 
     def getSuccessors(self, state):
         """
@@ -316,6 +315,8 @@ class CornersProblem(search.SearchProblem):
         """
 
         successors = []
+        position, corners = state
+        x,y = position
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
@@ -324,7 +325,25 @@ class CornersProblem(search.SearchProblem):
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
 
-            "*** YOUR CODE HERE ***"
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
+            if hitsWall:
+                continue
+
+            # Create tuple of next position
+            nextPosition = (nextx, nexty)
+            # update corners list if any corner is reached
+            updatedCorners = []
+            for i in range(len(corners)):
+                if nextPosition == self.corners[i]:
+                    # If reached a new corner, update to True
+                    updatedCorners.append(True)
+                else:
+                    # Otherwise fill in previous value
+                    updatedCorners.append(corners[i])
+
+            successors.append(((nextPosition, updatedCorners), action, 1))
 
         self._expanded += 1 # DO NOT CHANGE
         return successors

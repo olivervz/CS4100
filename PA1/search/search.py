@@ -92,7 +92,7 @@ def genericDepthBreadthSearch(frontier, problem):
     # Keep track of visited nodes
     visited = []
 
-    # frontier contains tuples of states and thier path
+    # frontier contains tuples of states and their path
     frontier.push((problem.getStartState(), []))
 
     # Continue iterating until queue empty
@@ -155,6 +155,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
             visited.append(state)
             for successor in problem.getSuccessors(state):
                 newCost = cost + successor[2] 
+                # New priority is the cost + heuristic
                 newPriority = newCost + heuristic(successor[0], problem)
                 pQueue.push((successor[0], path + [successor[1]], newCost), newPriority)
     return None
