@@ -506,14 +506,23 @@ def foodHeuristic(state, problem):
     foodList = foodGrid.asList()
     distances = []
 
-    if not foodList:
+    # Initialize list to keep track of eaten food
+    if 'eaten' not in problem.heuristicInfo.keys():
+        problem.heuristicInfo['eaten'] = []
+
+    # No food on map
+    if not foodList or position in foodList:
         return 0
+
+    # Position is food
     if position in foodList:
+        problem.heuristicInfo['eaten'].append(position)
         return 0
 
     for food in foodList:
-        distances.append(manhattanDistance(position, food))
-    return min(distances)
+        if food not in problem.heuristicInfo['eaten']:
+            distances.append(manhattanDistance(position, food))
+    return max(distances)
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
