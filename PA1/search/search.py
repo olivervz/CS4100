@@ -115,6 +115,8 @@ def genericDepthBreadthSearch(frontier, problem):
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
+    from util import PriorityQueue
+
     visited = []
     pQueue = util.PriorityQueue()
     pQueue.push((problem.getStartState(), [], 0), 0)
