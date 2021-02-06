@@ -377,6 +377,7 @@ def cornersHeuristic(state, problem):
     """
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
+    maxInt = 9223372036854775807
     from util import manhattanDistance
 
     statePosition, stateCorners = state
@@ -388,13 +389,13 @@ def cornersHeuristic(state, problem):
         corner3md = manhattanDistance(statePosition, corners[2])
         corner4md = manhattanDistance(statePosition, corners[3])
         if stateCorners[0]:
-            corner1md **= 2 
+            corner1md = maxInt
         if stateCorners[1]:
-            corner2md **= 2 
+            corner2md = maxInt 
         if stateCorners[2]:
-            corner3md **= 2 
+            corner3md = maxInt 
         if stateCorners[3]:
-            corner4md **= 2 
+            corner4md = maxInt
         return min(corner1md, corner2md, corner3md, corner4md)
 
 class AStarCornersAgent(SearchAgent):
