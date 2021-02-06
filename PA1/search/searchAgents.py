@@ -388,13 +388,13 @@ def cornersHeuristic(state, problem):
         corner3md = manhattanDistance(statePosition, corners[2])
         corner4md = manhattanDistance(statePosition, corners[3])
         if stateCorners[0]:
-            corner1md *= 2 
+            corner1md **= 2 
         if stateCorners[1]:
-            corner2md *= 2 
+            corner2md **= 2 
         if stateCorners[2]:
-            corner3md *= 2 
+            corner3md **= 2 
         if stateCorners[3]:
-            corner4md *= 2 
+            corner4md **= 2 
         return min(corner1md, corner2md, corner3md, corner4md)
 
 class AStarCornersAgent(SearchAgent):
