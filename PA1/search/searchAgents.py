@@ -384,19 +384,32 @@ def cornersHeuristic(state, problem):
     if statePosition in corners:
         return 0
     else:
+
+        corner1ed = ( (statePosition[0] - corners[0][0]) ** 2 + (statePosition[1] - corners[0][1]) ** 2 ) ** 0.5
+        corner2ed = ( (statePosition[0] - corners[1][0]) ** 2 + (statePosition[1] - corners[1][1]) ** 2 ) ** 0.5
+        corner3ed = ( (statePosition[0] - corners[2][0]) ** 2 + (statePosition[1] - corners[2][1]) ** 2 ) ** 0.5
+        corner4ed = ( (statePosition[0] - corners[3][0]) ** 2 + (statePosition[1] - corners[3][1]) ** 2 ) ** 0.5
+
         corner1md = manhattanDistance(statePosition, corners[0])
         corner2md = manhattanDistance(statePosition, corners[1])
         corner3md = manhattanDistance(statePosition, corners[2])
         corner4md = manhattanDistance(statePosition, corners[3])
+
+        # I shouldn't need to care about the previously explored corners
         if stateCorners[0]:
             corner1md = maxInt
+            corner1ed = maxInt
         if stateCorners[1]:
-            corner2md = maxInt 
+            corner2md = maxInt
+            corner2ed = maxInt
         if stateCorners[2]:
-            corner3md = maxInt 
+            corner3md = maxInt
+            corner3ed = maxInt
         if stateCorners[3]:
             corner4md = maxInt
-        return min(corner1md, corner2md, corner3md, corner4md)
+            corner4ed = maxInt
+
+        return min((corner1ed + corner1md) / 2 , (corner2ed + corner2md) / 2, (corner3ed + corner3md) / 2, (corner4ed + corner4md) / 2)
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -488,9 +501,19 @@ def foodHeuristic(state, problem):
     Subsequent calls to this heuristic can access
     problem.heuristicInfo['wallCount']
     """
+    from util import manhattanDistance
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
-    return 0
+    foodList = foodGrid.asList()
+    distances = []
+
+    if not foodList:
+        return 0
+    if position in foodList:
+        return 0
+
+    for food in foodList:
+        distances.append(manhattanDistance(position, food))
+    return min(distances)
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
