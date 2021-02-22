@@ -89,8 +89,8 @@ def breadthFirstSearch(problem):
 def genericDepthBreadthSearch(frontier, problem):
     # Implementations of stack and queue allow for this generic algorithm
 
-    # Keep track of visited nodes
-    visited = []
+    # Keep track of visited states 
+    visitedStates = []
 
     # frontier contains tuples of states and their path
     frontier.push((problem.getStartState(), []))
@@ -104,8 +104,8 @@ def genericDepthBreadthSearch(frontier, problem):
         if problem.isGoalState(state):
             return path
         
-        if state not in visited:
-            visited.append(state)
+        if state not in visitedStates:
+            visitedStates.append(state)
             for successor in problem.getSuccessors(state):
                 # push each successor state with their updated path 
                 frontier.push(((successor[0], path + [successor[1]])))
@@ -117,21 +117,20 @@ def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     from util import PriorityQueue
 
-    visited = []
+    visitedStates = []
     pQueue = util.PriorityQueue()
     pQueue.push((problem.getStartState(), [], 0), 0)
 
     while not pQueue.isEmpty():
-
         state, path, cost = pQueue.pop()
 
         if problem.isGoalState(state):
             return path
-        if state not in visited:
-            visited.append(state)
+        if state not in visitedStates:
+            visitedStates.append(state)
             for successor in problem.getSuccessors(state):
                 newCost = cost + successor[2]
-                pQueue.push((successor[0], path + [successor[1]], newCost), newCost)
+                pQueue.update((successor[0], path + [successor[1]], newCost), newCost)
     return None
 
 def nullHeuristic(state, problem=None):
@@ -142,24 +141,26 @@ def nullHeuristic(state, problem=None):
     return 0
 
 def aStarSearch(problem, heuristic=nullHeuristic):
+    """Search the node of least total cost first."""
+    from util import PriorityQueue
+
     """Search the node that has the lowest combined cost and heuristic first."""
-    visited = []
+    visitedStates = []
     pQueue = util.PriorityQueue()
     pQueue.push((problem.getStartState(), [], 0), heuristic(problem.getStartState(), problem))
 
     while not pQueue.isEmpty():
-
         state, path, cost = pQueue.pop()
 
         if problem.isGoalState(state):
             return path
-        if state not in visited:
-            visited.append(state)
+        if state not in visitedStates:
+            visitedStates.append(state)
             for successor in problem.getSuccessors(state):
                 newCost = cost + successor[2] 
                 # New priority is the cost + heuristic
                 newPriority = newCost + heuristic(successor[0], problem)
-                pQueue.push((successor[0], path + [successor[1]], newCost), newPriority)
+                pQueue.update((successor[0], path + [successor[1]], newCost), newPriority)
     return None
 
 

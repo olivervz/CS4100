@@ -293,7 +293,8 @@ class CornersProblem(search.SearchProblem):
         Returns the start state (in your state space, not the full Pacman state
         space)
         """
-        # Initialize all corners as false
+        # Initialize state as starting position and array of boolean values
+        # Set each boolean value to true when that corner is reached
         return self.startingPosition, [False, False, False, False]
 
     def isGoalState(self, state):
@@ -301,6 +302,7 @@ class CornersProblem(search.SearchProblem):
         Returns whether this search state is a goal state of the problem.
         """
         position, corners = state
+        # Goal state is reached when every corner has been reached, array all True
         return corners[0] and corners[1] and corners[2] and corners[3]
 
     def getSuccessors(self, state):
@@ -316,18 +318,14 @@ class CornersProblem(search.SearchProblem):
 
         successors = []
         position, corners = state
-        x,y = position
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
-            # Here's a code snippet for figuring out whether a new position hits a wall:
-            #   x,y = currentPosition
-            #   dx, dy = Actions.directionToVector(action)
-            #   nextx, nexty = int(x + dx), int(y + dy)
-            #   hitsWall = self.walls[nextx][nexty]
 
+            x,y = position
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
             hitsWall = self.walls[nextx][nexty]
+            # Ignore anything that hits a wall
             if hitsWall:
                 continue
 
@@ -385,31 +383,25 @@ def cornersHeuristic(state, problem):
         return 0
     else:
 
-        corner1ed = ( (statePosition[0] - corners[0][0]) ** 2 + (statePosition[1] - corners[0][1]) ** 2 ) ** 0.5
-        corner2ed = ( (statePosition[0] - corners[1][0]) ** 2 + (statePosition[1] - corners[1][1]) ** 2 ) ** 0.5
-        corner3ed = ( (statePosition[0] - corners[2][0]) ** 2 + (statePosition[1] - corners[2][1]) ** 2 ) ** 0.5
-        corner4ed = ( (statePosition[0] - corners[3][0]) ** 2 + (statePosition[1] - corners[3][1]) ** 2 ) ** 0.5
-
+        # Find the manhattan distance to each corner
         corner1md = manhattanDistance(statePosition, corners[0])
         corner2md = manhattanDistance(statePosition, corners[1])
         corner3md = manhattanDistance(statePosition, corners[2])
         corner4md = manhattanDistance(statePosition, corners[3])
 
-        # I shouldn't need to care about the previously explored corners
+        # I shouldn't need to care about the previously explored corners, 
+        # weigh them very heavily
         if stateCorners[0]:
             corner1md = maxInt
-            corner1ed = maxInt
         if stateCorners[1]:
             corner2md = maxInt
-            corner2ed = maxInt
         if stateCorners[2]:
             corner3md = maxInt
-            corner3ed = maxInt
         if stateCorners[3]:
             corner4md = maxInt
-            corner4ed = maxInt
 
-        return min((corner1ed + corner1md) / 2 , (corner2ed + corner2md) / 2, (corner3ed + corner3md) / 2, (corner4ed + corner4md) / 2)
+        # Return the minimum distance to the corners
+        return min(corner1md, corner2md, corner3md, corner4md)
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -519,6 +511,7 @@ def foodHeuristic(state, problem):
         problem.heuristicInfo['eaten'].append(position)
         return 0
 
+    # Find the max distance to a food item that hasn't been eaten
     for food in foodList:
         if food not in problem.heuristicInfo['eaten']:
             distances.append(manhattanDistance(position, food))
@@ -552,6 +545,7 @@ class ClosestDotSearchAgent(SearchAgent):
         walls = gameState.getWalls()
         problem = AnyFoodSearchProblem(gameState)
 
+        # Simply return a uniformCostSearch
         return search.uniformCostSearch(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -587,6 +581,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         """
         foodList = self.food.asList()
 
+        # Simply return if the food is present in the food list
         if state in foodList:
             return True
         else:
