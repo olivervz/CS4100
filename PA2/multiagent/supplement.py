@@ -104,14 +104,32 @@ if __name__ == '__main__':
     [" ", " ", " "],
     [" ", " ", "X"],
   ]
+  # (1, 1), 
+  s2optimal = [
+    [" ", " ", " "],
+    [" ", "O", " "],
+    [" ", " ", "X"],
+  ]
   s3 = [
     ["O", " ", " "],
     ["X", " ", " "],
     [" ", " ", "X"],
   ]
+  # (0, 2), (2, 0)
+  s3optimal = [
+    ["O", " ", "X"],
+    [" ", " ", " "],
+    [" ", " ", "X"],
+  ]
   s4 = [
     ["O", "O", " "],
     ["X", " ", " "],
+    [" ", " ", "X"],
+  ]
+  # (0, 2), (1, 2), (1, 1) 
+  s4optimal = [
+    ["O", " ", " "],
+    ["X", "O", " "],
     [" ", " ", "X"],
   ]
   s5 = [
@@ -126,14 +144,21 @@ if __name__ == '__main__':
   ]
 
   print("X Moves: Equal if optimal")
-  print(minimax(s0, "X"), minimax(s1, "X"))
-  print(minimax(s2, "X"), minimax(s3, "X"))
-  print(minimax(s4, "X"), minimax(s5, "X"))
+  print(minimax(s0, "X"), minimax(s1, "O"))
+  print(minimax(s2, "X"), minimax(s3, "O"))
+  print(minimax(s4, "X"), minimax(s5, "O"))
 
-  print("O Moves <= if optimal")
-  print(minimax(s1, "O"), minimax(s2, "O"))
-  print(minimax(s3, "O"), minimax(s4, "O"))
-  print(minimax(s5, "O"), minimax(s6, "O"))
+  print("O Moves: Equal if optimal")
+  print(minimax(s1, "O"), minimax(s2, "X"))
+  print(minimax(s3, "O"), minimax(s4, "X"))
+  print(minimax(s5, "O"), minimax(s6, "X"))
+
+  print("Alternate O moves")
+  print(minimax(s1, "O"), minimax(s2optimal, "X"))
+  print(minimax(s3, "O"), minimax(s4optimal, "X"))
+
+  print("Alternate X moves")
+  print(minimax(s2, "X"), minimax(s3optimal, "O"))
 
   """
   X Moves:
@@ -142,11 +167,21 @@ if __name__ == '__main__':
   minimax(s4) = 1, minimax(s5) = 1: Optimal
 
   O Moves:
-  minimax(s1) = 0, minimax(s2) = 1: Optimal
-  minimax(s3) = 0, minimax(s4) = 1: Optimal
+  minimax(s1) = 0, minimax(s2) = 1: Not Optimal
+  minimax(s3) = 0, minimax(s4) = 1: Not Optimal
   minimax(s5) = 1, minimax(s6) = 1: Optimal
 
-  X made a sub-optimal move between s0 and s1
-  every move O made was sub-optimal
+  O made a sub-optimal move between s1 and s2
+  optimal moves would have been:
+  - O at (1, 1)
+
+  X made a sub-optimal move between s2 and s3
+  - X at (2, 0)
+  - X at (0, 2)
+
+  O made a sub-optimal move between s3 and s4
+  - O at (0, 2)
+  - O at (1, 2)
+  - O at (1, 1)
 
   """

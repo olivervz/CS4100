@@ -149,11 +149,22 @@ class MinimaxAgent(MultiAgentSearchAgent):
         gameState.isLose():
         Returns whether or not the game state is a losing state
         """
-        # "*** YOUR CODE HERE ***"
-        # util.raiseNotDefined()
+        # Enter minimax with the depth and agentNum set to 0
+        # turn = True indicates it's pacman's turn (agent = 0)
         return self.minimax(gameState, 0, 0, True)
 
     def minimax(self, gameState, depth, agentNum, turn):
+        """Minimax search implementation
+
+        Args:
+            gameState (gameState): Object representing the game state
+            depth (int): Initially 0, it represents the layer of the minimax tree we're on
+            agentNum (int): Initially 0 (Pac-man), agents 1-numAgents are the ghosts
+            turn (Bool): True if pacman's turn, False if ghost's turn
+
+        Returns:
+            Direction: Returns the move that is best given the minimax function
+        """
         # Terminal state, return evaluation
         if depth == self.depth or gameState.isWin() or gameState.isLose():
             return self.evaluationFunction(gameState)
@@ -166,6 +177,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
             actions = gameState.getLegalActions(agentNum)
             for action in actions:
                 successor = gameState.generateSuccessor(agentNum, action)
+                # Don't increment depth initially, swap to min, with agentNum set to 1
                 new_max_value = max(max_value, self.minimax(successor, depth, agentNum + 1, False))
                 # Only update best_action if max_value is new
                 if new_max_value > max_value:
@@ -180,16 +192,20 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
         # Agent turn
         else:
+            # Initial min value is infinity
+            # Don't need to remember the best action for min
             min_value = float("inf")
             actions = gameState.getLegalActions(agentNum)
             for action in actions:
                 # Last agent, go back to max, increment depth, agent = 0
                 if agentNum + 1 == gameState.getNumAgents():
                     successor = gameState.generateSuccessor(agentNum, action)
+                    # Increment depth and swap to max, agentNum set to 0
                     min_value = min(min_value, self.minimax(successor, depth + 1, 0, True))
                 # Not last agent, remain in min, increment agent
                 else:
                     successor = gameState.generateSuccessor(agentNum, action)
+                    # Stay in min, don't increment depth since we're still on the same layer
                     min_value = min(min_value, self.minimax(successor, depth, agentNum + 1, False))
             return min_value
 
@@ -271,6 +287,7 @@ def betterEvaluationFunction(currentGameState):
 
     DESCRIPTION: <write something here so we know what you did>
     """
+    # Get current score, weigh this heavily
     score = scoreEvaluationFunction(currentGameState)
     pos = currentGameState.getPacmanPosition()
     food = currentGameState.getFood()
@@ -279,21 +296,26 @@ def betterEvaluationFunction(currentGameState):
     ghostStates = currentGameState.getGhostStates()
     scaredTimes = [ghostState.scaredTimer for ghostState in ghostStates]
 
+    # If its a win or lose, return an extreme bound
     if currentGameState.isWin():
         return float("inf")
     if currentGameState.isLose():
         return float("-inf")
     
+    # Find the distance to all foods
     food_distances = []
     for food in foodList:
         food_distances.append(manhattanDistance(pos, food))
 
+    # Find the distance to all ghosts
     ghost_distances = []
     for ghost in ghostStates:
         ghost_distances.append(manhattanDistance(pos, ghost.getPosition()))
+        # Return an extreme if too close to a ghost, reduced number of pacman deaths 
         if manhattanDistance(pos, ghost.getPosition()) < 3:
             return float("-inf")
 
+    # Set weights
     ghostWeight = (1000 / min(ghost_distances))
     if scaredTimes[0] == 0:
         ghostWeight *= -1 
@@ -301,6 +323,7 @@ def betterEvaluationFunction(currentGameState):
     foodWeight = (100 / min(food_distances))
     scoreWeight = score * 100000
 
+    # The larger this number, the better the position is currently 5/6, close to 6/6
     return scoreWeight + foodWeight + ghostWeight
 
 # Abbreviation
