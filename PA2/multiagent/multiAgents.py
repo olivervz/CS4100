@@ -160,24 +160,27 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
         # Pacman turn, agentNum = 0
         if turn:
+            # Initialize max_value as -inf, and default action as stop
             max_value = float("-inf")
             best_action = Directions.STOP
             actions = gameState.getLegalActions(agentNum)
             for action in actions:
                 successor = gameState.generateSuccessor(agentNum, action)
                 new_max_value = max(max_value, self.minimax(successor, depth, agentNum + 1, False))
+                # Only update best_action if max_value is new
                 if new_max_value > max_value:
                     max_value = new_max_value
                     best_action = action
             if depth == 0:
+                # Return the action if it's the root node
                 return best_action
             else:
+                # Return value otherwise
                 return max_value
 
         # Agent turn
         else:
             min_value = float("inf")
-            best_action = Directions.STOP
             actions = gameState.getLegalActions(agentNum)
             for action in actions:
                 # Last agent, go back to max, increment depth, agent = 0
@@ -223,17 +226,22 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
         # Pacman turn, agentNum = 0
         if turn:
+            # Initialize max_value as -inf, and best action as stop
             max_value = float("-inf")
             best_action = Directions.STOP
             actions = gameState.getLegalActions(agentNum)
             for action in actions:
+                # Generate each successor 
                 successor = gameState.generateSuccessor(agentNum, action)
                 new_max_value = max(max_value, self.expectimax(successor, depth, agentNum + 1, False))
+                # If new max_value is different, replace best_action
                 if new_max_value > max_value:
                     max_value = new_max_value
                     best_action = action
+            # Return action if it's the base node
             if depth == 0:
                 return best_action
+            # Return value otherwise
             else:
                 return max_value
 
