@@ -151,54 +151,47 @@ class MinimaxAgent(MultiAgentSearchAgent):
         """
         # "*** YOUR CODE HERE ***"
         # util.raiseNotDefined()
-        return self.max_value(gameState, 1)
+        return self.minimax(gameState, 0, 0, True)
 
-    def max_value(self, gameState, depth):
+    def minimax(self, gameState, depth, agentNum, turn):
         # Terminal state, return evaluation
-        if gameState.isWin() or gameState.isLose():
+        if depth == self.depth or gameState.isWin() or gameState.isLose():
             return self.evaluationFunction(gameState)
 
-        # initial max value is negative infinity
-        max_value = float("-inf")
-        best_action = Directions.STOP
-
-        # Agent index is 0 because Pacman is finding max
-        actions = gameState.getLegalActions(0)
-        for action in actions:
-            # Calculate successor state for each action
-            successor = gameState.generateSuccessor(0, action)
-
-            # send to min_value function
-            minimized_value = self.min_value(successor, depth, 1)
-
-            # Update max value and best action if necessary
-            if minimized_value > max_value:
-                max_value = minimized_value
-                best_action = action
-
-        # Terminal node, return action
-        if depth == 0:
-            return best_action
-        else:
-            return max_value
-
-    def min_value(self, gameState, depth, agentNum):
-        # Terminal State, return evaluation
-        if gameState.isWin() or gameState.isLose():
-            return self.evaluationFunction(gameState)
-        # initial min value is positive infinity
-        min_value = float("inf")
-
-        for ghost_num in range(agentNum, gameState.getNumAgents()):
-            actions = gameState.getLegalActions(ghost_num)
+        # Pacman turn, agentNum = 0
+        if turn:
+            max_value = float("-inf")
+            best_action = Directions.STOP
+            actions = gameState.getLegalActions(agentNum)
             for action in actions:
-                successor = gameState.generateSuccessor(ghost_num, action)
+                successor = gameState.generateSuccessor(agentNum, action)
+                new_max_value = max(max_value, self.minimax(successor, depth, agentNum + 1, False))
+                if new_max_value > max_value:
+                    max_value = new_max_value
+                    best_action = action
+            if depth == 0:
+                return best_action
+            else:
+                return max_value
 
-                if depth >= self.depth:
-                    min_value = min(min_value, self.evaluationFunction(successor))
+        # Agent turn
+        else:
+            min_value = float("inf")
+            best_action = Directions.STOP
+            actions = gameState.getLegalActions(agentNum)
+            for action in actions:
+                # Last agent, go back to max, increment depth, agent = 0
+                if agentNum + 1 == gameState.getNumAgents():
+                    successor = gameState.generateSuccessor(agentNum, action)
+                    new_min_value = min(min_value, self.minimax(successor, depth + 1, 0, True))
+                    if new_min_value < min_value:
+                        min_value = new_min_value
+                        best_action = action
+                # Not last agent, remain in min, increment agent
                 else:
-                    min_value = min(min_value, self.max_value(successor, depth + 1))
-        return min_value
+                    successor = gameState.generateSuccessor(agentNum, action)
+                    min_value = min(min_value, self.minimax(successor, depth, agentNum + 1, False))
+            return min_value
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
