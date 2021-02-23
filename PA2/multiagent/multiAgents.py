@@ -183,10 +183,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 # Last agent, go back to max, increment depth, agent = 0
                 if agentNum + 1 == gameState.getNumAgents():
                     successor = gameState.generateSuccessor(agentNum, action)
-                    new_min_value = min(min_value, self.minimax(successor, depth + 1, 0, True))
-                    if new_min_value < min_value:
-                        min_value = new_min_value
-                        best_action = action
+                    min_value = min(min_value, self.minimax(successor, depth + 1, 0, True))
                 # Not last agent, remain in min, increment agent
                 else:
                     successor = gameState.generateSuccessor(agentNum, action)
