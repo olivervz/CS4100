@@ -214,8 +214,47 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         All ghosts should be modeled as choosing uniformly at random from their
         legal moves.
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return self.expectimax(gameState, 0, 0, True)
+
+    def expectimax(self, gameState, depth, agentNum, turn):
+        # Terminal state, return evaluation
+        if depth == self.depth or gameState.isWin() or gameState.isLose():
+            return self.evaluationFunction(gameState)
+
+        # Pacman turn, agentNum = 0
+        if turn:
+            max_value = float("-inf")
+            best_action = Directions.STOP
+            actions = gameState.getLegalActions(agentNum)
+            for action in actions:
+                successor = gameState.generateSuccessor(agentNum, action)
+                new_max_value = max(max_value, self.expectimax(successor, depth, agentNum + 1, False))
+                if new_max_value > max_value:
+                    max_value = new_max_value
+                    best_action = action
+            if depth == 0:
+                return best_action
+            else:
+                return max_value
+
+        # Agent turn
+        else:
+            # Use a list instead of a min value
+            values = []
+            actions = gameState.getLegalActions(agentNum)
+            for action in actions:
+                # Last agent, go back to max, increment depth, agent = 0
+                if agentNum + 1 == gameState.getNumAgents():
+                    successor = gameState.generateSuccessor(agentNum, action)
+                    # Add elements to the list
+                    values += [self.expectimax(successor, depth + 1, 0, True)]
+                # Not last agent, remain in min, increment agent
+                else:
+                    successor = gameState.generateSuccessor(agentNum, action)
+                    # Add elements to the list
+                    values += [self.expectimax(successor, depth, agentNum + 1, False)]
+            # Return the average of the list
+            return sum(values) / len(values)
 
 def betterEvaluationFunction(currentGameState):
     """
@@ -224,8 +263,37 @@ def betterEvaluationFunction(currentGameState):
 
     DESCRIPTION: <write something here so we know what you did>
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    score = scoreEvaluationFunction(currentGameState)
+    pos = currentGameState.getPacmanPosition()
+    food = currentGameState.getFood()
+    foodList = food.asList()
+    capsules = currentGameState.getCapsules()
+    ghostStates = currentGameState.getGhostStates()
+    scaredTimes = [ghostState.scaredTimer for ghostState in ghostStates]
+
+    if currentGameState.isWin():
+        return float("inf")
+    if currentGameState.isLose():
+        return float("-inf")
+    
+    food_distances = []
+    for food in foodList:
+        food_distances.append(manhattanDistance(pos, food))
+
+    ghost_distances = []
+    for ghost in ghostStates:
+        ghost_distances.append(manhattanDistance(pos, ghost.getPosition()))
+        if manhattanDistance(pos, ghost.getPosition()) < 3:
+            return float("-inf")
+
+    ghostWeight = (1000 / min(ghost_distances))
+    if scaredTimes[0] == 0:
+        ghostWeight *= -1 
+
+    foodWeight = (100 / min(food_distances))
+    scoreWeight = score * 100000
+
+    return scoreWeight + foodWeight + ghostWeight
 
 # Abbreviation
 better = betterEvaluationFunction
